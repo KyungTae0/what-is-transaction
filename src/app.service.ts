@@ -19,7 +19,7 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async samTest1() {
+  async test() {
     // 데이터 베이스 정보 객체
     const queryRunner = this.dataSource.createQueryRunner();
 
@@ -30,34 +30,6 @@ export class AppService {
 
     try {
       // 트랜잭션 작업 (2. Execute)
-      const samTest = new SamTest1Entity();
-      samTest.text1 = '1111_changeValue';
-      // 저장 1차
-      await this.samTest1Repository.save(this.samTest1Repository.create(samTest));
-
-      // await queryRunner.commitTransaction();
-
-      const samTest2 = new SamTest2Entity();
-      samTest2.text1 = '2222_sam_test';
-      // 저장 2차
-      await this.samTest2Repository.save(this.samTest2Repository.create(samTest2));
-
-      // await queryRunner.commitTransaction();
-
-      samTest.text1 = '1111_rollbackValue';
-      // 저장 3차
-      await this.samTest1Repository.save(this.samTest1Repository.create(samTest));
-
-      // 업데이트
-      await this.samTest2Repository.update(
-        {
-          id: 1,
-        },
-        { text1: '123213213' },
-      );
-
-      // 일부러 에러
-      // throw '';
 
       // 트랜잭션 완료 (3. Commit)
       // 모든 내용 성공 (커밋)
@@ -69,56 +41,6 @@ export class AppService {
     } finally {
       // 연결해제
       await queryRunner.release();
-    }
-  }
-
-  async samTest2() {
-    try {
-      await this.samTest1Repository.manager.transaction(async (one) => {
-        await this.samTest2Repository.update(
-          {
-            id: 5,
-          },
-          {
-            text2: '새로운거',
-          },
-        );
-        const samTest = new SamTest1Entity();
-        samTest.text1 = 'changeValue';
-        await one.save(samTest);
-        throw '에러남~';
-
-        samTest.text1 = 'rollbackValue';
-        await one.save(samTest);
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async samTest3() {
-    try {
-      await this.dataSource.manager.transaction(async (one) => {
-        await one.update(
-          SamTest2Entity,
-          {
-            id: 5,
-          },
-          {
-            text3: '333번 새로운거~~~!~',
-          },
-        );
-
-        const samTest = new SamTest1Entity();
-        samTest.text1 = '345435';
-        await one.save(samTest);
-        // throw '에러남~';
-
-        samTest.text2 = 'rollbackValue';
-        await one.save(samTest);
-      });
-    } catch (error) {
-      console.log(error);
     }
   }
 }
